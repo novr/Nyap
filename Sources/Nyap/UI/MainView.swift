@@ -122,11 +122,12 @@ struct MainView: View {
                     Text(L10n.tr("main.pose"))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Picker("猫のポーズ", selection: bind(get: { store.selectedCatID }, set: store.setSelectedCat)) {
+                    Picker("", selection: bind(get: { store.selectedCatID }, set: store.setSelectedCat)) {
                         ForEach(SessionStore.catOptions) { option in
                             Text(L10n.tr(option.titleKey)).tag(option.id)
                         }
                     }
+                    .labelsHidden()
                     .frame(width: 170)
                 }
 

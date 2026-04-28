@@ -19,7 +19,7 @@ struct NyapApp: App {
         MenuBarExtra {
             MenuBarView(store: store)
         } label: {
-            Text(store.menuBarTitle)
+            MenuBarLabelView(store: store)
         }
         .menuBarExtraStyle(.window)
     }
@@ -27,16 +27,27 @@ struct NyapApp: App {
 
 private struct RootContentView: View {
     let store: SessionStore
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
         MainView(store: store)
             .onAppear {
                 store.bindNotificationPermission()
             }
-            .onChange(of: store.isBreakOverlayPresented) { _, isPresented in
-                if isPresented {
+    }
+}
+
+private struct MenuBarLabelView: View {
+    let store: SessionStore
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+
+    var body: some View {
+        Text(store.menuBarTitle)
+            .onAppear {
+                store.bindNotificationPermission()
+            }
+            .task(id: store.isBreakOverlayPresented) {
+                if store.isBreakOverlayPresented {
                     openWindow(id: SessionStore.breakOverlayWindowID)
                 } else {
                     dismissWindow(id: SessionStore.breakOverlayWindowID)

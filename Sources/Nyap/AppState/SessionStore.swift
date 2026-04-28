@@ -270,7 +270,6 @@ final class SessionStore {
 
     private func closeOverlay() {
         overlayMode = .none
-        overlayRandomCatID = nil
     }
 
     private func resolveOverlayRandomCatID() -> String {
