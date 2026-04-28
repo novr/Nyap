@@ -2,6 +2,19 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject var store: SessionStore
+    private var workMinutesBinding: Binding<Int> {
+        Binding(
+            get: { store.workMinutes },
+            set: { store.setWorkMinutes($0) }
+        )
+    }
+
+    private var breakMinutesBinding: Binding<Int> {
+        Binding(
+            get: { store.breakMinutes },
+            set: { store.setBreakMinutes($0) }
+        )
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -46,11 +59,11 @@ struct MainView: View {
 
             GroupBox("設定") {
                 VStack(alignment: .leading, spacing: 10) {
-                    Stepper(value: $store.workMinutes, in: 1...180) {
+                    Stepper(value: workMinutesBinding, in: 1...180) {
                         Text("作業時間: \(store.workMinutes) 分")
                     }
 
-                    Stepper(value: $store.breakMinutes, in: 1...60) {
+                    Stepper(value: breakMinutesBinding, in: 1...60) {
                         Text("休憩時間: \(store.breakMinutes) 分")
                     }
 

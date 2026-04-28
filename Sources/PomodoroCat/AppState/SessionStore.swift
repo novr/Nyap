@@ -18,25 +18,8 @@ final class SessionStore: ObservableObject {
     @Published private(set) var totalBreakSecondsToday: Int = 0
     @Published var isBreakOverlayPresented: Bool = false
 
-    @Published var workMinutes: Int {
-        didSet {
-            workMinutes = max(1, workMinutes)
-            defaults.set(workMinutes, forKey: Keys.workMinutes)
-            if phase == .idle {
-                remainingSeconds = workMinutes * 60
-            }
-        }
-    }
-
-    @Published var breakMinutes: Int {
-        didSet {
-            breakMinutes = max(1, breakMinutes)
-            defaults.set(breakMinutes, forKey: Keys.breakMinutes)
-            if phase == .breakTime {
-                remainingSeconds = min(remainingSeconds, breakMinutes * 60)
-            }
-        }
-    }
+    @Published private(set) var workMinutes: Int
+    @Published private(set) var breakMinutes: Int
 
     @Published var autoStartOnLaunch: Bool {
         didSet {
@@ -105,6 +88,26 @@ final class SessionStore: ObservableObject {
 
     func bindNotificationPermission() {
         notificationService.requestAuthorization()
+    }
+
+    func setWorkMinutes(_ minutes: Int) {
+        let clamped = max(1, minutes)
+        guard workMinutes != clamped else { return }
+        workMinutes = clamped
+        defaults.set(clamped, forKey: Keys.workMinutes)
+        if phase == .idle {
+            remainingSeconds = clamped * 60
+        }
+    }
+
+    func setBreakMinutes(_ minutes: Int) {
+        let clamped = max(1, minutes)
+        guard breakMinutes != clamped else { return }
+        breakMinutes = clamped
+        defaults.set(clamped, forKey: Keys.breakMinutes)
+        if phase == .breakTime {
+            remainingSeconds = min(remainingSeconds, clamped * 60)
+        }
     }
 
     func startWorkSession() {
