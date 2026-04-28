@@ -1,0 +1,58 @@
+"app.name" = "Nyap";
+"app.breakWindowTitle" = "Break";
+
+"menu.startWork" = "Start Work";
+"menu.skipBreak" = "Skip Break";
+"menu.quit" = "Quit";
+
+"phase.idle" = "Idle";
+"phase.work" = "Focusing";
+"phase.break" = "Break";
+
+"menubar.idle" = "🐱 Idle";
+"menubar.work" = "💼 %@";
+"menubar.break" = "😺 Break %@";
+
+"cat.option.random" = "Random";
+"cat.option.sleep" = "Sleeping";
+"cat.option.stretch" = "Stretching";
+"cat.option.nap" = "Napping";
+
+"notification.workStart.title" = "Work Started";
+"notification.workStart.body" = "Focus time has started.";
+"notification.breakStart.title" = "Break Started";
+"notification.breakStart.body" = "Take a short break with your cat.";
+"notification.breakEnd.title" = "Break Ended";
+"notification.breakEnd.body" = "Back to work.";
+
+"overlay.previewMode" = "Preview Mode";
+"overlay.close" = "Close";
+"overlay.skipBreakNow" = "Skip Break";
+
+"main.header.title" = "Deep Work Session";
+"main.header.live" = "LIVE";
+"main.currentPhase" = "CURRENT PHASE";
+"main.startWork" = "Start Work";
+"main.stop" = "Stop";
+"main.skipBreak" = "Skip Break";
+
+"main.section.sessionSettings" = "SESSION SETTINGS";
+"main.workTime" = "Work time (min)";
+"main.breakTime" = "Break time (min)";
+"main.autoStart" = "Auto start work on launch";
+
+"main.section.companionDisplay" = "COMPANION DISPLAY";
+"main.catDisplay" = "Cat Display";
+"main.catDisplay.still" = "Still";
+"main.catDisplay.animated" = "Animated";
+"main.pose" = "Pose";
+"main.previewCat" = "Preview Overlay";
+
+"main.achievements" = "Today's Achievements";
+"main.viewHistory" = "View History";
+"main.metric.completed" = "COMPLETED";
+"main.metric.skipped" = "SKIPPED";
+"main.metric.totalBreakTime" = "TOTAL BREAK TIME";
+"main.metric.sessions" = "sessions";
+"main.metric.breaks" = "breaks";
+"main.metric.minutes" = "minutes";

@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Nyap",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v14),
     ],
@@ -13,6 +14,7 @@ let package = Package(
             name: "Nyap",
             resources: [
                 .process("Assets.xcassets"),
+                .process("Resources"),
             ]
         ),
     ]

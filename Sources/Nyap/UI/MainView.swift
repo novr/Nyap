@@ -2,6 +2,13 @@ import SwiftUI
 
 struct MainView: View {
     @Bindable var store: SessionStore
+
+    private let pageBackground = Color("PageBackground", bundle: .module)
+    private let cardBackground = Color("CardBackground", bundle: .module)
+    private let panelBackground = Color("PanelBackground", bundle: .module)
+    private let brandBlue = Color("BrandBlue", bundle: .module)
+    private let brandRed = Color("BrandRed", bundle: .module)
+
     private var workMinutesBinding: Binding<Int> {
         Binding(
             get: { store.workMinutes },
@@ -24,113 +31,235 @@ struct MainView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("Nyap")
-                .font(.largeTitle.weight(.bold))
+        ScrollView {
+            VStack(spacing: 18) {
+                topBar
+                heroCard
+                settingsGrid
+                achievementCard
+            }
+            .padding(20)
+        }
+        .background(pageBackground.ignoresSafeArea())
+    }
 
-            GroupBox("現在の状態") {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label(store.phaseTitle, systemImage: phaseIcon)
-                        .font(.headline)
-                    Text(store.remainingTimeText)
-                        .font(.system(size: 42, weight: .semibold, design: .monospaced))
-                    if store.phase == .breakTime {
-                        Text("休憩残り時間を表示中")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+    private var topBar: some View {
+        HStack(spacing: 10) {
+            Label(L10n.tr("app.name"), systemImage: "pawprint.fill")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            Divider()
+                .frame(height: 18)
+
+            Text(L10n.tr("main.header.title"))
+                .font(.subheadline.weight(.semibold))
+
+            Text(L10n.tr("main.header.live"))
+                .font(.caption2.weight(.bold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(brandBlue.opacity(0.18))
+                .clipShape(Capsule())
+
+            Spacer()
+
+            Image(systemName: "bell")
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private var heroCard: some View {
+        VStack(spacing: 18) {
+            VStack(spacing: 4) {
+                Text(L10n.tr("main.currentPhase"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(store.phaseTitle)
+                    .font(.system(size: 34, weight: .bold))
             }
 
-            GroupBox("操作") {
-                HStack(spacing: 10) {
-                    Button("作業を開始") {
-                        store.startWorkSession()
-                    }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(store.phase == .work)
+            Text(store.remainingTimeText)
+                .font(.system(size: 62, weight: .black, design: .rounded))
+                .padding(.horizontal, 32)
+                .padding(.vertical, 18)
+                .background(panelBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                    Button("停止") {
-                        store.stopSession()
-                    }
-                    .disabled(store.phase == .idle)
-
-                    Button("今は休憩しない") {
-                        store.skipBreak()
-                    }
-                    .disabled(store.phase != .breakTime)
-
-                    Button("猫の表示確認") {
-                        store.previewBreakOverlay()
-                    }
-                    .disabled(store.isBreakOverlayPresented)
+            HStack(spacing: 10) {
+                Button {
+                    store.startWorkSession()
+                } label: {
+                    Label(L10n.tr("main.startWork"), systemImage: "play.circle")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(store.phase == .work)
+
+                Button(L10n.tr("main.stop")) {
+                    store.stopSession()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(store.phase == .idle)
+
+                Button(L10n.tr("main.skipBreak")) {
+                    store.skipBreak()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(store.phase != .breakTime)
             }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 26)
+        .padding(.horizontal, 24)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
 
-            GroupBox("設定") {
-                VStack(alignment: .leading, spacing: 10) {
-                    Stepper(value: workMinutesBinding, in: 1...180) {
-                        Text("作業時間: \(store.workMinutes) 分")
-                    }
+    private var settingsGrid: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 14) {
+                sectionTitle(L10n.tr("main.section.sessionSettings"))
+                Stepper(value: workMinutesBinding, in: 1...180) {
+                    settingRow(label: L10n.tr("main.workTime"), value: "\(store.workMinutes)")
+                }
+                Stepper(value: breakMinutesBinding, in: 1...60) {
+                    settingRow(label: L10n.tr("main.breakTime"), value: "\(store.breakMinutes)")
+                }
+                Toggle(L10n.tr("main.autoStart"), isOn: $store.autoStartOnLaunch)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .background(cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                    Stepper(value: breakMinutesBinding, in: 1...60) {
-                        Text("休憩時間: \(store.breakMinutes) 分")
-                    }
-
+            VStack(alignment: .leading, spacing: 14) {
+                sectionTitle(L10n.tr("main.section.companionDisplay"))
+                HStack {
+                    Text(L10n.tr("main.catDisplay"))
+                        .foregroundStyle(.secondary)
+                    Spacer()
                     Picker("猫表示スタイル", selection: $store.catDisplayStyle) {
-                        Text("静止画像").tag("static")
-                        Text("簡易アニメ").tag("animated")
+                        Text(L10n.tr("main.catDisplay.still")).tag("static")
+                        Text(L10n.tr("main.catDisplay.animated")).tag("animated")
                     }
                     .pickerStyle(.segmented)
+                    .frame(width: 170)
+                }
 
+                HStack {
+                    Text(L10n.tr("main.pose"))
+                        .foregroundStyle(.secondary)
+                    Spacer()
                     Picker("猫のポーズ", selection: selectedCatBinding) {
                         ForEach(SessionStore.catOptions) { option in
-                            Text(option.title).tag(option.id)
+                            Text(L10n.tr(option.titleKey)).tag(option.id)
                         }
                     }
-
-                    Toggle("起動時に自動で作業開始", isOn: $store.autoStartOnLaunch)
+                    .frame(width: 170)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
 
-            GroupBox("今日の実績") {
-                HStack(spacing: 18) {
-                    statColumn(title: "完了回数", value: "\(store.completedWorkSessions)")
-                    statColumn(title: "スキップ回数", value: "\(store.skippedBreakCount)")
-                    statColumn(title: "総休憩時間", value: formatBreakTotal(store.totalBreakSecondsToday))
+                HStack {
+                    Spacer()
+                    Button(L10n.tr("main.previewCat")) {
+                        store.previewBreakOverlay()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(store.isBreakOverlayPresented)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-        }
-        .padding(20)
-    }
-
-    private var phaseIcon: String {
-        switch store.phase {
-        case .idle:
-            return "pause.circle"
-        case .work:
-            return "briefcase.fill"
-        case .breakTime:
-            return "moon.zzz.fill"
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .background(cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 
-    private func statColumn(title: String, value: String) -> some View {
+    private var achievementCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label(L10n.tr("main.achievements"), systemImage: "rosette")
+                    .font(.title2.weight(.bold))
+                Spacer()
+                Text(L10n.tr("main.viewHistory"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(brandBlue)
+            }
+
+            HStack(spacing: 12) {
+                metricCard(
+                    title: L10n.tr("main.metric.completed"),
+                    value: "\(store.completedWorkSessions)",
+                    suffix: L10n.tr("main.metric.sessions"),
+                    progress: Double(store.completedWorkSessions) / 16.0,
+                    color: brandBlue
+                )
+                metricCard(
+                    title: L10n.tr("main.metric.skipped"),
+                    value: "\(store.skippedBreakCount)",
+                    suffix: L10n.tr("main.metric.breaks"),
+                    progress: Double(store.skippedBreakCount) / 8.0,
+                    color: brandRed
+                )
+                metricCard(
+                    title: L10n.tr("main.metric.totalBreakTime"),
+                    value: "\(totalBreakMinutes)",
+                    suffix: L10n.tr("main.metric.minutes"),
+                    progress: Double(totalBreakMinutes) / 90.0,
+                    color: brandBlue
+                )
+            }
+        }
+        .padding(18)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private func settingRow(label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(panelBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+    }
+
+    private func metricCard(title: String, value: String, suffix: String, progress: Double, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.caption)
+                .font(.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)
-            Text(value)
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                Text(suffix)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            ProgressView(value: min(1, progress))
+                .tint(color)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(panelBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func formatBreakTotal(_ totalSeconds: Int) -> String {
-        let minutes = totalSeconds / 60
-        return "\(minutes) 分"
+    private var totalBreakMinutes: Int {
+        store.totalBreakSecondsToday / 60
     }
 }

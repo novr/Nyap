@@ -1,0 +1,58 @@
+"app.name" = "Nyap";
+"app.breakWindowTitle" = "休憩";
+
+"menu.startWork" = "作業を開始";
+"menu.skipBreak" = "休憩をスキップ";
+"menu.quit" = "終了";
+
+"phase.idle" = "待機中";
+"phase.work" = "作業中";
+"phase.break" = "休憩中";
+
+"menubar.idle" = "🐱 待機";
+"menubar.work" = "💼 %@";
+"menubar.break" = "😺 休憩 %@";
+
+"cat.option.random" = "ランダム";
+"cat.option.sleep" = "寝そべり";
+"cat.option.stretch" = "のびー";
+"cat.option.nap" = "お昼寝";
+
+"notification.workStart.title" = "作業スタート";
+"notification.workStart.body" = "集中タイムを開始しました。";
+"notification.breakStart.title" = "休憩スタート";
+"notification.breakStart.body" = "猫と一緒にひと休みしましょう。";
+"notification.breakEnd.title" = "休憩終了";
+"notification.breakEnd.body" = "作業に戻りましょう。";
+
+"overlay.previewMode" = "表示確認モード";
+"overlay.close" = "閉じる";
+"overlay.skipBreakNow" = "今は休憩しない";
+
+"main.header.title" = "Deep Work Session";
+"main.header.live" = "LIVE";
+"main.currentPhase" = "CURRENT PHASE";
+"main.startWork" = "作業開始";
+"main.stop" = "停止";
+"main.skipBreak" = "休憩スキップ";
+
+"main.section.sessionSettings" = "SESSION SETTINGS";
+"main.workTime" = "作業時間 (分)";
+"main.breakTime" = "休憩時間 (分)";
+"main.autoStart" = "起動時に自動で作業開始";
+
+"main.section.companionDisplay" = "COMPANION DISPLAY";
+"main.catDisplay" = "猫表示";
+"main.catDisplay.still" = "静止";
+"main.catDisplay.animated" = "アニメ";
+"main.pose" = "ポーズ";
+"main.previewCat" = "猫の表示確認";
+
+"main.achievements" = "今日の実績";
+"main.viewHistory" = "履歴を見る";
+"main.metric.completed" = "完了回数";
+"main.metric.skipped" = "スキップ回数";
+"main.metric.totalBreakTime" = "総休憩時間";
+"main.metric.sessions" = "回";
+"main.metric.breaks" = "回";
+"main.metric.minutes" = "分";
