@@ -9,6 +9,7 @@ APP_DIR="$DIST_DIR/$APP_NAME.app"
 ZIP_PATH="$DIST_DIR/$APP_NAME-macOS.zip"
 EXECUTABLE_PATH="$BUILD_DIR/$APP_NAME"
 RESOURCE_BUNDLE_PATH="$BUILD_DIR/${APP_NAME}_${APP_NAME}.bundle"
+ICON_PATH="$ROOT_DIR/Sources/Nyap/Resources/Icon/AppIcon.icns"
 
 echo "Building release binary..."
 swift build -c release --package-path "$ROOT_DIR"
@@ -23,12 +24,18 @@ if [[ ! -d "$RESOURCE_BUNDLE_PATH" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$ICON_PATH" ]]; then
+  echo "App icon not found: $ICON_PATH" >&2
+  exit 1
+fi
+
 echo "Preparing app bundle..."
 rm -rf "$APP_DIR" "$ZIP_PATH"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 
 cp "$EXECUTABLE_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp -R "$RESOURCE_BUNDLE_PATH" "$APP_DIR/${APP_NAME}_${APP_NAME}.bundle"
+cp "$ICON_PATH" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -51,6 +58,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
     <string>1</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>NSHighResolutionCapable</key>
