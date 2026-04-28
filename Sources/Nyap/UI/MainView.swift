@@ -60,6 +60,11 @@ struct MainView: View {
                         store.skipBreak()
                     }
                     .disabled(store.phase != .breakTime)
+
+                    Button("猫の表示確認") {
+                        store.previewBreakOverlay()
+                    }
+                    .disabled(store.isBreakOverlayPresented)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

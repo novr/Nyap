@@ -17,7 +17,9 @@ final class SessionStore {
     }
 
     static let breakOverlayWindowID = "break-overlay"
+    static let randomCatID = "random"
     static let catOptions: [CatOption] = [
+        .init(id: randomCatID, title: "ランダム", assetName: "CatSleep"),
         .init(id: "sleep", title: "寝そべり", assetName: "CatSleep"),
         .init(id: "stretch", title: "のびー", assetName: "CatStretch"),
         .init(id: "nap", title: "お昼寝", assetName: "CatNap"),
@@ -29,6 +31,8 @@ final class SessionStore {
     private(set) var skippedBreakCount: Int = 0
     private(set) var totalBreakSecondsToday: Int = 0
     var isBreakOverlayPresented: Bool = false
+    private(set) var isBreakOverlayPreviewMode: Bool = false
+    private(set) var activeCatAssetName: String = "CatSleep"
 
     private(set) var workMinutes: Int
     private(set) var breakMinutes: Int
@@ -48,7 +52,7 @@ final class SessionStore {
     private(set) var selectedCatID: String
 
     var selectedCatAssetName: String {
-        Self.catOptions.first(where: { $0.id == selectedCatID })?.assetName ?? "CatSleep"
+        activeCatAssetName
     }
 
     var phaseTitle: String {
@@ -95,6 +99,7 @@ final class SessionStore {
         if !Self.catOptions.contains(where: { $0.id == selectedCatID }) {
             selectedCatID = "sleep"
         }
+        activeCatAssetName = resolveActiveCatAssetName()
 
         completedWorkSessions = defaults.integer(forKey: Keys.completedWorkSessions)
         skippedBreakCount = defaults.integer(forKey: Keys.skippedBreakCount)
@@ -137,12 +142,14 @@ final class SessionStore {
         guard selectedCatID != catID else { return }
         selectedCatID = catID
         defaults.set(catID, forKey: Keys.selectedCatID)
+        activeCatAssetName = resolveActiveCatAssetName()
     }
 
     func startWorkSession() {
         resetStatsIfNeeded()
         phase = .work
         isBreakOverlayPresented = false
+        isBreakOverlayPreviewMode = false
         remainingSeconds = workMinutes * 60
         breakElapsedSeconds = 0
         notificationService.send(title: "作業スタート", body: "集中タイムを開始しました。")
@@ -151,6 +158,8 @@ final class SessionStore {
 
     func startBreakSession() {
         phase = .breakTime
+        isBreakOverlayPreviewMode = false
+        activeCatAssetName = resolveActiveCatAssetName()
         remainingSeconds = breakMinutes * 60
         breakElapsedSeconds = 0
         if isBreakOverlayPresented {
@@ -162,9 +171,17 @@ final class SessionStore {
     }
 
     func markBreakOverlayClosed() {
+        isBreakOverlayPreviewMode = false
         if isBreakOverlayPresented {
             isBreakOverlayPresented = false
         }
+    }
+
+    func previewBreakOverlay() {
+        guard !isBreakOverlayPresented else { return }
+        isBreakOverlayPreviewMode = true
+        activeCatAssetName = resolveActiveCatAssetName()
+        isBreakOverlayPresented = true
     }
 
     func skipBreak() {
@@ -172,6 +189,7 @@ final class SessionStore {
         skippedBreakCount += 1
         persistStats()
         isBreakOverlayPresented = false
+        isBreakOverlayPreviewMode = false
         startWorkSession()
     }
 
@@ -179,6 +197,7 @@ final class SessionStore {
         timerEngine.stop()
         phase = .idle
         isBreakOverlayPresented = false
+        isBreakOverlayPreviewMode = false
         remainingSeconds = workMinutes * 60
     }
 
@@ -219,6 +238,7 @@ final class SessionStore {
         totalBreakSecondsToday += breakElapsedSeconds
         persistStats()
         isBreakOverlayPresented = false
+        isBreakOverlayPreviewMode = false
         notificationService.send(title: "休憩終了", body: "作業に戻りましょう。")
         startWorkSession()
     }
@@ -228,6 +248,14 @@ final class SessionStore {
         let minutes = safeValue / 60
         let secs = safeValue % 60
         return String(format: "%02d:%02d", minutes, secs)
+    }
+
+    private func resolveActiveCatAssetName() -> String {
+        if selectedCatID == Self.randomCatID {
+            let candidates = Self.catOptions.filter { $0.id != Self.randomCatID }
+            return candidates.randomElement()?.assetName ?? "CatSleep"
+        }
+        return Self.catOptions.first(where: { $0.id == selectedCatID })?.assetName ?? "CatSleep"
     }
 
     private func resetStatsIfNeeded() {

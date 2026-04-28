@@ -42,6 +42,11 @@ private struct RootContentView: View {
                     dismissWindow(id: SessionStore.breakOverlayWindowID)
                 }
             }
+            .onChange(of: store.phase) { _, phase in
+                if phase != .breakTime {
+                    dismissWindow(id: SessionStore.breakOverlayWindowID)
+                }
+            }
     }
 }
 
