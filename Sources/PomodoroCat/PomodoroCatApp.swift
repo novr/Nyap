@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct PomodoroCatApp: App {
-    @StateObject private var store = SessionStore()
+    @State private var store = SessionStore()
 
     var body: some Scene {
         WindowGroup("PomodoroCat") {
@@ -26,7 +26,7 @@ struct PomodoroCatApp: App {
 }
 
 private struct RootContentView: View {
-    @ObservedObject var store: SessionStore
+    let store: SessionStore
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
@@ -46,7 +46,7 @@ private struct RootContentView: View {
 }
 
 private struct MenuBarView: View {
-    @ObservedObject var store: SessionStore
+    let store: SessionStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

@@ -1,8 +1,9 @@
 import Foundation
-import Combine
+import Observation
 
+@Observable
 @MainActor
-final class SessionStore: ObservableObject {
+final class SessionStore {
     enum Phase: String {
         case idle
         case work
@@ -11,23 +12,23 @@ final class SessionStore: ObservableObject {
 
     static let breakOverlayWindowID = "break-overlay"
 
-    @Published private(set) var phase: Phase = .idle
-    @Published private(set) var remainingSeconds: Int = 0
-    @Published private(set) var completedWorkSessions: Int = 0
-    @Published private(set) var skippedBreakCount: Int = 0
-    @Published private(set) var totalBreakSecondsToday: Int = 0
-    @Published var isBreakOverlayPresented: Bool = false
+    private(set) var phase: Phase = .idle
+    private(set) var remainingSeconds: Int = 0
+    private(set) var completedWorkSessions: Int = 0
+    private(set) var skippedBreakCount: Int = 0
+    private(set) var totalBreakSecondsToday: Int = 0
+    var isBreakOverlayPresented: Bool = false
 
-    @Published private(set) var workMinutes: Int
-    @Published private(set) var breakMinutes: Int
+    private(set) var workMinutes: Int
+    private(set) var breakMinutes: Int
 
-    @Published var autoStartOnLaunch: Bool {
+    var autoStartOnLaunch: Bool {
         didSet {
             defaults.set(autoStartOnLaunch, forKey: Keys.autoStartOnLaunch)
         }
     }
 
-    @Published var catDisplayStyle: String {
+    var catDisplayStyle: String {
         didSet {
             defaults.set(catDisplayStyle, forKey: Keys.catDisplayStyle)
         }

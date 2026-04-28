@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CatOverlayView: View {
-    @ObservedObject var store: SessionStore
+    let store: SessionStore
     @State private var animateCat = false
 
     var body: some View {

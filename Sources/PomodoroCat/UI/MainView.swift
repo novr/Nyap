@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @ObservedObject var store: SessionStore
+    @Bindable var store: SessionStore
     private var workMinutesBinding: Binding<Int> {
         Binding(
             get: { store.workMinutes },
