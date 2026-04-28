@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CatOverlayView: View {
     let store: SessionStore
-    @State private var animateCat = false
+
     private var shouldAnimateCat: Bool {
         store.catDisplayStyle == "animated"
     }
@@ -20,10 +20,10 @@ struct CatOverlayView: View {
                         maxWidth: proxy.size.width * 0.995,
                         maxHeight: proxy.size.height * 0.97
                     )
-                    .scaleEffect(shouldAnimateCat && animateCat ? 1.04 : 1.0)
+                    .scaleEffect(shouldAnimateCat ? 1.04 : 1.0)
                     .animation(
                         shouldAnimateCat ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true) : nil,
-                        value: animateCat
+                        value: shouldAnimateCat
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(.trailing, 4)
@@ -31,7 +31,7 @@ struct CatOverlayView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     if store.isBreakOverlayPreviewMode {
-                        Text("表示確認モード")
+                        Text(L10n.tr("overlay.previewMode"))
                             .font(.system(size: 30, weight: .bold))
                             .foregroundStyle(.white)
                     } else {
@@ -46,7 +46,7 @@ struct CatOverlayView: View {
 
                 HStack {
                     Spacer()
-                    Button(store.isBreakOverlayPreviewMode ? "閉じる" : "今は休憩しない") {
+                    Button(store.isBreakOverlayPreviewMode ? L10n.tr("overlay.close") : L10n.tr("overlay.skipBreakNow")) {
                         if store.isBreakOverlayPreviewMode {
                             store.markBreakOverlayClosed()
                         } else {
@@ -61,26 +61,13 @@ struct CatOverlayView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(OverlayWindowConfigurator())
-        .onAppear {
-            animateCat = shouldAnimateCat
-        }
-        .onChange(of: store.catDisplayStyle) { _, newStyle in
-            if newStyle == "animated" {
-                animateCat = false
-                DispatchQueue.main.async {
-                    animateCat = true
-                }
-            } else {
-                animateCat = false
-            }
-        }
     }
 }
 
 private struct OverlayWindowConfigurator: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
-        DispatchQueue.main.async {
+        Task { @MainActor in
             guard let window = view.window else { return }
             window.level = .statusBar
             window.styleMask = [.borderless, .fullSizeContentView]

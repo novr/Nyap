@@ -5,12 +5,12 @@ struct NyapApp: App {
     @State private var store = SessionStore()
 
     var body: some Scene {
-        WindowGroup("Nyap") {
+        WindowGroup(L10n.tr("app.name")) {
             RootContentView(store: store)
-                .frame(minWidth: 560, minHeight: 520)
+                .frame(minWidth: 980, minHeight: 760)
         }
 
-        Window("休憩", id: SessionStore.breakOverlayWindowID) {
+        Window(L10n.tr("app.breakWindowTitle"), id: SessionStore.breakOverlayWindowID) {
             CatOverlayView(store: store)
                 .frame(minWidth: 480, minHeight: 360)
         }
@@ -42,11 +42,6 @@ private struct RootContentView: View {
                     dismissWindow(id: SessionStore.breakOverlayWindowID)
                 }
             }
-            .onChange(of: store.phase) { _, phase in
-                if phase != .breakTime {
-                    dismissWindow(id: SessionStore.breakOverlayWindowID)
-                }
-            }
     }
 }
 
@@ -60,15 +55,15 @@ private struct MenuBarView: View {
             Text(store.remainingTimeText)
                 .font(.system(.title3, design: .monospaced))
             Divider()
-            Button("作業を開始") {
+            Button(L10n.tr("menu.startWork")) {
                 store.startWorkSession()
             }
             .disabled(store.phase == .work)
-            Button("休憩をスキップ") {
+            Button(L10n.tr("menu.skipBreak")) {
                 store.skipBreak()
             }
             .disabled(store.phase != .breakTime)
-            Button("終了") {
+            Button(L10n.tr("menu.quit")) {
                 NSApplication.shared.terminate(nil)
             }
         }

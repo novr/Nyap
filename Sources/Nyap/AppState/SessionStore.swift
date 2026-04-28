@@ -6,7 +6,7 @@ import Observation
 final class SessionStore {
     struct CatOption: Identifiable {
         let id: String
-        let title: String
+        let titleKey: String
         let assetName: String
     }
 
@@ -16,13 +16,19 @@ final class SessionStore {
         case breakTime
     }
 
+    enum OverlayMode {
+        case none
+        case breakTime
+        case preview
+    }
+
     static let breakOverlayWindowID = "break-overlay"
     static let randomCatID = "random"
     static let catOptions: [CatOption] = [
-        .init(id: randomCatID, title: "ランダム", assetName: "CatSleep"),
-        .init(id: "sleep", title: "寝そべり", assetName: "CatSleep"),
-        .init(id: "stretch", title: "のびー", assetName: "CatStretch"),
-        .init(id: "nap", title: "お昼寝", assetName: "CatNap"),
+        .init(id: randomCatID, titleKey: "cat.option.random", assetName: "CatSleep"),
+        .init(id: "sleep", titleKey: "cat.option.sleep", assetName: "CatSleep"),
+        .init(id: "stretch", titleKey: "cat.option.stretch", assetName: "CatStretch"),
+        .init(id: "nap", titleKey: "cat.option.nap", assetName: "CatNap"),
     ]
 
     private(set) var phase: Phase = .idle
@@ -30,9 +36,8 @@ final class SessionStore {
     private(set) var completedWorkSessions: Int = 0
     private(set) var skippedBreakCount: Int = 0
     private(set) var totalBreakSecondsToday: Int = 0
-    var isBreakOverlayPresented: Bool = false
-    private(set) var isBreakOverlayPreviewMode: Bool = false
-    private(set) var activeCatAssetName: String = "CatSleep"
+    private(set) var overlayMode: OverlayMode = .none
+    private(set) var overlayRandomCatID: String?
 
     private(set) var workMinutes: Int
     private(set) var breakMinutes: Int
@@ -51,18 +56,32 @@ final class SessionStore {
 
     private(set) var selectedCatID: String
 
+    var isBreakOverlayPresented: Bool {
+        overlayMode != .none
+    }
+
+    var isBreakOverlayPreviewMode: Bool {
+        overlayMode == .preview
+    }
+
     var selectedCatAssetName: String {
-        activeCatAssetName
+        if selectedCatID == Self.randomCatID {
+            if let overlayRandomCatID {
+                return Self.catOptions.first(where: { $0.id == overlayRandomCatID })?.assetName ?? "CatSleep"
+            }
+            return "CatSleep"
+        }
+        return Self.catOptions.first(where: { $0.id == selectedCatID })?.assetName ?? "CatSleep"
     }
 
     var phaseTitle: String {
         switch phase {
         case .idle:
-            return "待機中"
+            return L10n.tr("phase.idle")
         case .work:
-            return "作業中"
+            return L10n.tr("phase.work")
         case .breakTime:
-            return "休憩中"
+            return L10n.tr("phase.break")
         }
     }
 
@@ -73,11 +92,11 @@ final class SessionStore {
     var menuBarTitle: String {
         switch phase {
         case .idle:
-            return "🐱 待機"
+            return L10n.tr("menubar.idle")
         case .work:
-            return "💼 \(remainingTimeText)"
+            return L10n.tr("menubar.work", remainingTimeText)
         case .breakTime:
-            return "😺 休憩 \(remainingTimeText)"
+            return L10n.tr("menubar.break", remainingTimeText)
         }
     }
 
@@ -99,7 +118,6 @@ final class SessionStore {
         if !Self.catOptions.contains(where: { $0.id == selectedCatID }) {
             selectedCatID = "sleep"
         }
-        activeCatAssetName = resolveActiveCatAssetName()
 
         completedWorkSessions = defaults.integer(forKey: Keys.completedWorkSessions)
         skippedBreakCount = defaults.integer(forKey: Keys.skippedBreakCount)
@@ -142,62 +160,58 @@ final class SessionStore {
         guard selectedCatID != catID else { return }
         selectedCatID = catID
         defaults.set(catID, forKey: Keys.selectedCatID)
-        activeCatAssetName = resolveActiveCatAssetName()
+        if selectedCatID != Self.randomCatID {
+            overlayRandomCatID = nil
+        } else if overlayMode != .none {
+            overlayRandomCatID = resolveOverlayRandomCatID()
+        }
     }
 
     func startWorkSession() {
         resetStatsIfNeeded()
         phase = .work
-        isBreakOverlayPresented = false
-        isBreakOverlayPreviewMode = false
+        closeOverlay()
         remainingSeconds = workMinutes * 60
         breakElapsedSeconds = 0
-        notificationService.send(title: "作業スタート", body: "集中タイムを開始しました。")
+        notificationService.send(
+            title: L10n.tr("notification.workStart.title"),
+            body: L10n.tr("notification.workStart.body")
+        )
         startTicking()
     }
 
     func startBreakSession() {
         phase = .breakTime
-        isBreakOverlayPreviewMode = false
-        activeCatAssetName = resolveActiveCatAssetName()
+        openOverlay(mode: .breakTime)
         remainingSeconds = breakMinutes * 60
         breakElapsedSeconds = 0
-        if isBreakOverlayPresented {
-            isBreakOverlayPresented = false
-        }
-        isBreakOverlayPresented = true
-        notificationService.send(title: "休憩スタート", body: "猫と一緒にひと休みしましょう。")
+        notificationService.send(
+            title: L10n.tr("notification.breakStart.title"),
+            body: L10n.tr("notification.breakStart.body")
+        )
         startTicking()
     }
 
     func markBreakOverlayClosed() {
-        isBreakOverlayPreviewMode = false
-        if isBreakOverlayPresented {
-            isBreakOverlayPresented = false
-        }
+        closeOverlay()
     }
 
     func previewBreakOverlay() {
-        guard !isBreakOverlayPresented else { return }
-        isBreakOverlayPreviewMode = true
-        activeCatAssetName = resolveActiveCatAssetName()
-        isBreakOverlayPresented = true
+        guard overlayMode == .none else { return }
+        openOverlay(mode: .preview)
     }
 
     func skipBreak() {
         guard phase == .breakTime else { return }
         skippedBreakCount += 1
         persistStats()
-        isBreakOverlayPresented = false
-        isBreakOverlayPreviewMode = false
         startWorkSession()
     }
 
     func stopSession() {
         timerEngine.stop()
         phase = .idle
-        isBreakOverlayPresented = false
-        isBreakOverlayPreviewMode = false
+        closeOverlay()
         remainingSeconds = workMinutes * 60
     }
 
@@ -237,9 +251,11 @@ final class SessionStore {
     private func finishBreak() {
         totalBreakSecondsToday += breakElapsedSeconds
         persistStats()
-        isBreakOverlayPresented = false
-        isBreakOverlayPreviewMode = false
-        notificationService.send(title: "休憩終了", body: "作業に戻りましょう。")
+        closeOverlay()
+        notificationService.send(
+            title: L10n.tr("notification.breakEnd.title"),
+            body: L10n.tr("notification.breakEnd.body")
+        )
         startWorkSession()
     }
 
@@ -250,12 +266,23 @@ final class SessionStore {
         return String(format: "%02d:%02d", minutes, secs)
     }
 
-    private func resolveActiveCatAssetName() -> String {
+    private func openOverlay(mode: OverlayMode) {
+        overlayMode = mode
         if selectedCatID == Self.randomCatID {
-            let candidates = Self.catOptions.filter { $0.id != Self.randomCatID }
-            return candidates.randomElement()?.assetName ?? "CatSleep"
+            overlayRandomCatID = resolveOverlayRandomCatID()
+        } else {
+            overlayRandomCatID = nil
         }
-        return Self.catOptions.first(where: { $0.id == selectedCatID })?.assetName ?? "CatSleep"
+    }
+
+    private func closeOverlay() {
+        overlayMode = .none
+        overlayRandomCatID = nil
+    }
+
+    private func resolveOverlayRandomCatID() -> String {
+        let candidates = Self.catOptions.filter { $0.id != Self.randomCatID }
+        return candidates.randomElement()?.id ?? "sleep"
     }
 
     private func resetStatsIfNeeded() {
@@ -279,7 +306,7 @@ final class SessionStore {
     private static func dayKey(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.locale = .autoupdatingCurrent
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
