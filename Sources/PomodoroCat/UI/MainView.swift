@@ -16,6 +16,13 @@ struct MainView: View {
         )
     }
 
+    private var selectedCatBinding: Binding<String> {
+        Binding(
+            get: { store.selectedCatID },
+            set: { store.setSelectedCat($0) }
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("PomodoroCat")
@@ -72,6 +79,12 @@ struct MainView: View {
                         Text("簡易アニメ").tag("animated")
                     }
                     .pickerStyle(.segmented)
+
+                    Picker("猫のポーズ", selection: selectedCatBinding) {
+                        ForEach(SessionStore.catOptions) { option in
+                            Text(option.title).tag(option.id)
+                        }
+                    }
 
                     Toggle("起動時に自動で作業開始", isOn: $store.autoStartOnLaunch)
                 }

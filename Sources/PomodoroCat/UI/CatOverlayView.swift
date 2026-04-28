@@ -10,7 +10,7 @@ struct CatOverlayView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                Image("Cat", bundle: .module)
+                Image(store.selectedCatAssetName, bundle: .module)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 260)

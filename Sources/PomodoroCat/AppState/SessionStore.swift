@@ -4,6 +4,12 @@ import Observation
 @Observable
 @MainActor
 final class SessionStore {
+    struct CatOption: Identifiable {
+        let id: String
+        let title: String
+        let assetName: String
+    }
+
     enum Phase: String {
         case idle
         case work
@@ -11,6 +17,11 @@ final class SessionStore {
     }
 
     static let breakOverlayWindowID = "break-overlay"
+    static let catOptions: [CatOption] = [
+        .init(id: "sleep", title: "寝そべり", assetName: "CatSleep"),
+        .init(id: "stretch", title: "のびー", assetName: "CatStretch"),
+        .init(id: "nap", title: "お昼寝", assetName: "CatNap"),
+    ]
 
     private(set) var phase: Phase = .idle
     private(set) var remainingSeconds: Int = 0
@@ -32,6 +43,12 @@ final class SessionStore {
         didSet {
             defaults.set(catDisplayStyle, forKey: Keys.catDisplayStyle)
         }
+    }
+
+    private(set) var selectedCatID: String
+
+    var selectedCatAssetName: String {
+        Self.catOptions.first(where: { $0.id == selectedCatID })?.assetName ?? "CatSleep"
     }
 
     var phaseTitle: String {
@@ -74,6 +91,10 @@ final class SessionStore {
         breakMinutes = savedBreak > 0 ? savedBreak : 5
         autoStartOnLaunch = defaults.object(forKey: Keys.autoStartOnLaunch) as? Bool ?? false
         catDisplayStyle = defaults.string(forKey: Keys.catDisplayStyle) ?? "static"
+        selectedCatID = defaults.string(forKey: Keys.selectedCatID) ?? "sleep"
+        if !Self.catOptions.contains(where: { $0.id == selectedCatID }) {
+            selectedCatID = "sleep"
+        }
 
         completedWorkSessions = defaults.integer(forKey: Keys.completedWorkSessions)
         skippedBreakCount = defaults.integer(forKey: Keys.skippedBreakCount)
@@ -109,6 +130,13 @@ final class SessionStore {
         if phase == .breakTime {
             remainingSeconds = min(remainingSeconds, clamped * 60)
         }
+    }
+
+    func setSelectedCat(_ catID: String) {
+        guard Self.catOptions.contains(where: { $0.id == catID }) else { return }
+        guard selectedCatID != catID else { return }
+        selectedCatID = catID
+        defaults.set(catID, forKey: Keys.selectedCatID)
     }
 
     func startWorkSession() {
@@ -225,6 +253,7 @@ private enum Keys {
     static let breakMinutes = "breakMinutes"
     static let autoStartOnLaunch = "autoStartOnLaunch"
     static let catDisplayStyle = "catDisplayStyle"
+    static let selectedCatID = "selectedCatID"
 
     static let completedWorkSessions = "completedWorkSessions"
     static let skippedBreakCount = "skippedBreakCount"
