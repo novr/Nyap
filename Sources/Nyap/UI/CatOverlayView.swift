@@ -3,10 +3,6 @@ import SwiftUI
 struct CatOverlayView: View {
     let store: SessionStore
 
-    private var shouldAnimateCat: Bool {
-        store.catDisplayStyle == "animated"
-    }
-
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .topLeading) {
@@ -19,11 +15,6 @@ struct CatOverlayView: View {
                     .frame(
                         maxWidth: proxy.size.width * 0.995,
                         maxHeight: proxy.size.height * 0.97
-                    )
-                    .scaleEffect(shouldAnimateCat ? 1.04 : 1.0)
-                    .animation(
-                        shouldAnimateCat ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true) : nil,
-                        value: shouldAnimateCat
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(.trailing, 4)

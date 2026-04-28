@@ -48,12 +48,6 @@ final class SessionStore {
         }
     }
 
-    var catDisplayStyle: String {
-        didSet {
-            defaults.set(catDisplayStyle, forKey: Keys.catDisplayStyle)
-        }
-    }
-
     private(set) var selectedCatID: String
 
     var isBreakOverlayPresented: Bool {
@@ -113,7 +107,6 @@ final class SessionStore {
         workMinutes = savedWork > 0 ? savedWork : 30
         breakMinutes = savedBreak > 0 ? savedBreak : 5
         autoStartOnLaunch = defaults.object(forKey: Keys.autoStartOnLaunch) as? Bool ?? false
-        catDisplayStyle = defaults.string(forKey: Keys.catDisplayStyle) ?? "static"
         selectedCatID = defaults.string(forKey: Keys.selectedCatID) ?? "sleep"
         if !Self.catOptions.contains(where: { $0.id == selectedCatID }) {
             selectedCatID = "sleep"
@@ -316,7 +309,6 @@ private enum Keys {
     static let workMinutes = "workMinutes"
     static let breakMinutes = "breakMinutes"
     static let autoStartOnLaunch = "autoStartOnLaunch"
-    static let catDisplayStyle = "catDisplayStyle"
     static let selectedCatID = "selectedCatID"
 
     static let completedWorkSessions = "completedWorkSessions"

@@ -30,7 +30,6 @@
 "overlay.skipBreakNow" = "今は休憩しない";
 
 "main.header.title" = "Deep Work Session";
-"main.header.live" = "LIVE";
 "main.currentPhase" = "CURRENT PHASE";
 "main.startWork" = "作業開始";
 "main.stop" = "停止";
@@ -42,14 +41,10 @@
 "main.autoStart" = "起動時に自動で作業開始";
 
 "main.section.companionDisplay" = "COMPANION DISPLAY";
-"main.catDisplay" = "猫表示";
-"main.catDisplay.still" = "静止";
-"main.catDisplay.animated" = "アニメ";
 "main.pose" = "ポーズ";
 "main.previewCat" = "猫の表示確認";
 
 "main.achievements" = "今日の実績";
-"main.viewHistory" = "履歴を見る";
 "main.metric.completed" = "完了回数";
 "main.metric.skipped" = "スキップ回数";
 "main.metric.totalBreakTime" = "総休憩時間";

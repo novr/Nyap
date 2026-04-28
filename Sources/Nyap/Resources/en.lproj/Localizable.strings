@@ -30,7 +30,6 @@
 "overlay.skipBreakNow" = "Skip Break";
 
 "main.header.title" = "Deep Work Session";
-"main.header.live" = "LIVE";
 "main.currentPhase" = "CURRENT PHASE";
 "main.startWork" = "Start Work";
 "main.stop" = "Stop";
@@ -42,14 +41,10 @@
 "main.autoStart" = "Auto start work on launch";
 
 "main.section.companionDisplay" = "COMPANION DISPLAY";
-"main.catDisplay" = "Cat Display";
-"main.catDisplay.still" = "Still";
-"main.catDisplay.animated" = "Animated";
 "main.pose" = "Pose";
 "main.previewCat" = "Preview Overlay";
 
 "main.achievements" = "Today's Achievements";
-"main.viewHistory" = "View History";
 "main.metric.completed" = "COMPLETED";
 "main.metric.skipped" = "SKIPPED";
 "main.metric.totalBreakTime" = "TOTAL BREAK TIME";

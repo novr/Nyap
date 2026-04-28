@@ -9,24 +9,14 @@ struct MainView: View {
     private let brandBlue = Color("BrandBlue", bundle: .module)
     private let brandRed = Color("BrandRed", bundle: .module)
 
-    private var workMinutesBinding: Binding<Int> {
+    @MainActor
+    private func bind<Value>(
+        get: @escaping @MainActor () -> Value,
+        set: @escaping @MainActor (Value) -> Void
+    ) -> Binding<Value> {
         Binding(
-            get: { store.workMinutes },
-            set: { store.setWorkMinutes($0) }
-        )
-    }
-
-    private var breakMinutesBinding: Binding<Int> {
-        Binding(
-            get: { store.breakMinutes },
-            set: { store.setBreakMinutes($0) }
-        )
-    }
-
-    private var selectedCatBinding: Binding<String> {
-        Binding(
-            get: { store.selectedCatID },
-            set: { store.setSelectedCat($0) }
+            get: { get() },
+            set: { value in set(value) }
         )
     }
 
@@ -55,17 +45,7 @@ struct MainView: View {
             Text(L10n.tr("main.header.title"))
                 .font(.subheadline.weight(.semibold))
 
-            Text(L10n.tr("main.header.live"))
-                .font(.caption2.weight(.bold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(brandBlue.opacity(0.18))
-                .clipShape(Capsule())
-
             Spacer()
-
-            Image(systemName: "bell")
-                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 4)
     }
@@ -123,10 +103,10 @@ struct MainView: View {
         HStack(alignment: .top, spacing: 16) {
             VStack(alignment: .leading, spacing: 14) {
                 sectionTitle(L10n.tr("main.section.sessionSettings"))
-                Stepper(value: workMinutesBinding, in: 1...180) {
+                Stepper(value: bind(get: { store.workMinutes }, set: store.setWorkMinutes), in: 1...180) {
                     settingRow(label: L10n.tr("main.workTime"), value: "\(store.workMinutes)")
                 }
-                Stepper(value: breakMinutesBinding, in: 1...60) {
+                Stepper(value: bind(get: { store.breakMinutes }, set: store.setBreakMinutes), in: 1...60) {
                     settingRow(label: L10n.tr("main.breakTime"), value: "\(store.breakMinutes)")
                 }
                 Toggle(L10n.tr("main.autoStart"), isOn: $store.autoStartOnLaunch)
@@ -139,22 +119,10 @@ struct MainView: View {
             VStack(alignment: .leading, spacing: 14) {
                 sectionTitle(L10n.tr("main.section.companionDisplay"))
                 HStack {
-                    Text(L10n.tr("main.catDisplay"))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Picker("猫表示スタイル", selection: $store.catDisplayStyle) {
-                        Text(L10n.tr("main.catDisplay.still")).tag("static")
-                        Text(L10n.tr("main.catDisplay.animated")).tag("animated")
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 170)
-                }
-
-                HStack {
                     Text(L10n.tr("main.pose"))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Picker("猫のポーズ", selection: selectedCatBinding) {
+                    Picker("猫のポーズ", selection: bind(get: { store.selectedCatID }, set: store.setSelectedCat)) {
                         ForEach(SessionStore.catOptions) { option in
                             Text(L10n.tr(option.titleKey)).tag(option.id)
                         }
@@ -183,10 +151,6 @@ struct MainView: View {
             HStack {
                 Label(L10n.tr("main.achievements"), systemImage: "rosette")
                     .font(.title2.weight(.bold))
-                Spacer()
-                Text(L10n.tr("main.viewHistory"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(brandBlue)
             }
 
             HStack(spacing: 12) {
