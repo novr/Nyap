@@ -37,6 +37,9 @@ struct CatOverlayView: View {
         .onAppear {
             animateCat = true
         }
+        .onDisappear {
+            store.markBreakOverlayClosed()
+        }
     }
 }
 

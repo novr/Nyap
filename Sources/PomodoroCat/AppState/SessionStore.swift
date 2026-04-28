@@ -153,9 +153,18 @@ final class SessionStore {
         phase = .breakTime
         remainingSeconds = breakMinutes * 60
         breakElapsedSeconds = 0
+        if isBreakOverlayPresented {
+            isBreakOverlayPresented = false
+        }
         isBreakOverlayPresented = true
         notificationService.send(title: "休憩スタート", body: "猫と一緒にひと休みしましょう。")
         startTicking()
+    }
+
+    func markBreakOverlayClosed() {
+        if isBreakOverlayPresented {
+            isBreakOverlayPresented = false
+        }
     }
 
     func skipBreak() {
