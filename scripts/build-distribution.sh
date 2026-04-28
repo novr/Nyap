@@ -42,7 +42,7 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
     <key>CFBundleExecutable</key>
     <string>Nyap</string>
     <key>CFBundleIdentifier</key>
-    <string>com.nyap.app</string>
+    <string>io.github.novr.nyap</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundlePackageType</key>
