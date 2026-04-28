@@ -10,20 +10,10 @@ struct CatOverlayView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                Group {
-                    if let catImage = NSImage(named: "Cat") {
-                        Image(nsImage: catImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 260)
-                    } else {
-                        Image(systemName: "cat.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 180, height: 140)
-                            .foregroundStyle(.white)
-                    }
-                }
+                Image("Cat", bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 260)
                 .scaleEffect(store.catDisplayStyle == "animated" && animateCat ? 1.04 : 0.96)
                 .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: animateCat)
 
