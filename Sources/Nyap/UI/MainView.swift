@@ -25,7 +25,7 @@ struct MainView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("PomodoroCat")
+            Text("Nyap")
                 .font(.largeTitle.weight(.bold))
 
             GroupBox("現在の状態") {

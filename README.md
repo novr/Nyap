@@ -1,4 +1,4 @@
-# PomodoroCat
+# Nyap
 
 30分作業 + 5分休憩のリズムで、休憩時に猫オーバーレイを表示するmacOSアプリです。
 
@@ -18,8 +18,8 @@ chmod +x scripts/build-distribution.sh
 
 生成物:
 
-- `dist/PomodoroCat.app`
-- `dist/PomodoroCat-macOS.zip`
+- `dist/Nyap.app`
+- `dist/Nyap-macOS.zip`
 
 ## 補足
 

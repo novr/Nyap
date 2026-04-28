@@ -4,13 +4,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "PomodoroCat",
+    name: "Nyap",
     platforms: [
         .macOS(.v14),
     ],
     targets: [
         .executableTarget(
-            name: "PomodoroCat",
+            name: "Nyap",
             resources: [
                 .process("Assets.xcassets"),
             ]

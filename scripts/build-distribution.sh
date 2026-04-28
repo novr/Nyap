@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD_DIR="$ROOT_DIR/.build/arm64-apple-macosx/release"
 DIST_DIR="$ROOT_DIR/dist"
-APP_NAME="PomodoroCat"
+APP_NAME="Nyap"
 APP_DIR="$DIST_DIR/$APP_NAME.app"
 ZIP_PATH="$DIST_DIR/$APP_NAME-macOS.zip"
 EXECUTABLE_PATH="$BUILD_DIR/$APP_NAME"
@@ -36,13 +36,13 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>PomodoroCat</string>
+    <string>Nyap</string>
     <key>CFBundleDisplayName</key>
-    <string>PomodoroCat</string>
+    <string>Nyap</string>
     <key>CFBundleExecutable</key>
-    <string>PomodoroCat</string>
+    <string>Nyap</string>
     <key>CFBundleIdentifier</key>
-    <string>com.pomodorocat.app</string>
+    <string>com.nyap.app</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundlePackageType</key>

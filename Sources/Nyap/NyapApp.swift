@@ -1,11 +1,11 @@
 import SwiftUI
 
 @main
-struct PomodoroCatApp: App {
+struct NyapApp: App {
     @State private var store = SessionStore()
 
     var body: some Scene {
-        WindowGroup("PomodoroCat") {
+        WindowGroup("Nyap") {
             RootContentView(store: store)
                 .frame(minWidth: 560, minHeight: 520)
         }
