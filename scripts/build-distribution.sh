@@ -34,7 +34,7 @@ rm -rf "$APP_DIR" "$ZIP_PATH"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 
 cp "$EXECUTABLE_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
-cp -R "$RESOURCE_BUNDLE_PATH" "$APP_DIR/${APP_NAME}_${APP_NAME}.bundle"
+cp -R "$RESOURCE_BUNDLE_PATH" "$APP_DIR/Contents/MacOS/${APP_NAME}_${APP_NAME}.bundle"
 cp "$ICON_PATH" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
@@ -70,7 +70,12 @@ PLIST
 
 if [[ -n "${SIGN_IDENTITY:-}" ]]; then
   echo "Signing app bundle with identity: $SIGN_IDENTITY"
-  codesign --force --deep --sign "$SIGN_IDENTITY" "$APP_DIR"
+  # Hardened Runtime + secure timestamp are required for notarization (Gatekeeper).
+  codesign --force --deep \
+    --sign "$SIGN_IDENTITY" \
+    --timestamp \
+    --options runtime \
+    "$APP_DIR"
 else
   echo "Skipping codesign (set SIGN_IDENTITY to enable signing)."
 fi
